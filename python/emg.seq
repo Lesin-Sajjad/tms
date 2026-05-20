@@ -1,0 +1,23 @@
+; emg.seq
+; CED 1401 sequencer program
+; Continuously samples ADC0–ADC3
+
+VAR ptr
+
+ptr = 0
+
+START:
+
+```
+ADC 0 3        ; read ADC0–ADC3
+STW ptr        ; store result in memory
+ADD ptr 4      ; move pointer
+
+CMP ptr 8000   ; wrap buffer
+JLT CONT
+ptr = 0
+```
+
+CONT:
+DELAY 1
+JMP START

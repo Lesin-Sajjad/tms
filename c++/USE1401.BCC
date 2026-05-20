@@ -1,0 +1,320 @@
+/****************************************************************************/
+/*                                                                          */
+/* Title:      USE1401.BCC - interface file for BORLAND C++                 */
+/*                                                                          */
+/*             THIS IS NOT CED SUPPORTED SOFTWARE - USE ONLY IF             */
+/*             YOU ARE WILLING TO TRY TO SORT OUT PROBLEMS YOURSELF.        */
+/*                                                                          */
+/* Version:    2.0                                                          */
+/*                                                                          */
+/* Date:       14/5/93                                                      */
+/*                                                                          */
+/* Author:     Matt Fogarty - to whom thanks are owed for doing the work    */
+/*             and making this file available to other users.               */
+/*                                                                          */
+/****************************************************************************/
+
+
+#ifndef __MACHINE__
+    #define __MACHINE__
+
+    #include <sys\types.h>    /* Needed for various types               */
+    #include <sys\stat.h>                            /*    ditto        */
+
+//    #define _INC_WINDOWS    
+//    #define _IS_WINDOWS_
+
+    typedef short BOOLEAN;
+
+    #ifndef TRUE
+       #define TRUE 1
+       #define FALSE 0
+    #endif
+
+
+       #define F_memcpy _fmemcpy  /* Define model-independent routines      */
+
+       #define F_strlen lstrlen
+       #define F_strcat lstrcat
+       #define F_strcpy lstrcpy
+       #define F_strcmp lstrcmp
+       #define F_strncat _fstrncat
+       #define F_strncpy _fstrncpy
+       #define F_strncmp _fstrncmp
+
+       typedef short  Coord;      /* this is LONG in the MacApp definitions */
+
+       typedef double fdouble;
+       #define FDBL_DIG DBL_DIG
+       typedef HGLOBAL THandle;
+
+       #define M_AllocMem(x)     GlobalAlloc(GMEM_MOVEABLE,x)
+       #define M_AllocClear(x)   GlobalAlloc(GMEM_MOVEABLE|GMEM_ZEROINIT,x)
+       #define M_FreeMem(x)      GlobalFree(x)
+       #define M_LockMem(x)      GlobalLock(x)
+       #define M_MoveLockMem(x)  GlobalLock(x)
+       #define M_UnlockMem(x)    (GlobalUnlock(x)==0)
+       #define M_NewMemSize(x,y) (x = GlobalReAlloc(x,y,GMEM_MOVEABLE))
+       #define M_GetMemSize(x)   GlobalSize(x)   
+
+
+
+#endif /* not defined __MACHINE__ */
+
+#ifndef __TYPES__
+#define __TYPES__
+#include <sys/types.h>
+#endif
+
+
+/****************************************************************************/
+/*                                                                          */
+/* Return codes from functions                                              */
+/*                                                                          */
+/****************************************************************************/
+
+#define U14ERR_NOERROR        0           /* no problems                    */
+
+#define U14ERR_OFF            -500        /* 1401 there but switched off    */
+#define U14ERR_NC             -501        /* 1401 not connected             */
+#define U14ERR_ILL            -502        /* if present it is ill           */
+#define U14ERR_NOIF           -503        /* I/F card missing               */
+#define U14ERR_TIME           -504        /* 1401 failed to come ready      */
+#define U14ERR_BADSW          -505        /* I/F card bad switches          */
+#define U14ERR_PTIME          -506        /* 1401+ failed to come ready     */
+#define U14ERR_NOINT          -507        /* couldn't grab the int vector   */
+#define U14ERR_INUSE          -508        /* 1401 is already in use         */
+#define U14ERR_NODMA          -509        /* couldn't get DMA channel       */
+#define U14ERR_BADHAND        -510        /* handle provided was bad        */
+#define U14ERR_BAD1401NUM     -511        /* 1401 number provided was bad   */
+
+#define U14ERR_NO_SUCH_FN     -520        /* no such function               */
+#define U14ERR_NO_SUCH_SUBFN  -521        /* no such sub function           */
+#define U14ERR_ERR_NOOUT      -522        /* no room in output buffer       */
+#define U14ERR_ERR_NOIN       -523        /* no input in buffer             */
+#define U14ERR_ERR_STRLEN     -524        /* string longer than buffer      */
+#define U14ERR_LOCKFAIL       -525        /* failed to lock memory          */
+#define U14ERR_UNLOCKFAIL     -526        /* failed to unlock memory        */
+#define U14ERR_ALREADYSET     -527        /* area already set up            */
+#define U14ERR_NOTSET         -528        /* area not set up                */
+#define U14ERR_BADAREA        -529        /* illegal area number            */
+                                 
+#define U14ERR_NOFILE         -540        /* command file not found         */
+#define U14ERR_READERR        -541        /* error reading command file     */
+#define U14ERR_UNKNOWN        -542        /* unknown command                */
+#define U14ERR_HOSTSPACE      -543        /* not enough host space to load  */
+#define U14ERR_LOCKERR        -544        /* could not lock resource/command*/
+#define U14ERR_CLOADERR       -545        /* CLOAD command failed           */
+
+#define U14ERR_TOXXXERR       -560        /* tohost/1401 failed             */
+
+#define U14ERR_NO386ENH       -580        /* not 386 enhanced mode          */
+#define U14ERR_NO1401DRIV     -581        /* no device driver               */
+#define U14ERR_DRIVTOOOLD     -582        /* device driver too old          */
+
+#define U14ERR_TIMEOUT        -590        /* timeout occurred               */
+
+#define U14ERR_BUFF_SMALL     -600        /* buffer for getstring too small */
+#define U14ERR_CBALREADY      -601        /* there is already a callback    */
+#define U14ERR_BADDEREG       -602        /* bad parameter to deregcallback */
+
+#define U14ERR_DRIVCOMMS      -610        /* failed talking to driver       */
+#define U14ERR_OUTOFMEMORY    -611        /* neede memory and couldnt get it*/
+
+#define U14TYPE1401           0           /* standard 1401                  */
+#define U14TYPEPLUS           1           /* 1401 plus                      */
+#define U14TYPEUNKNOWN        -1          /* dont know                      */
+
+#define ESZBYTES              0           /* BYTE element size value        */
+#define ESZWORDS              1           /* WORD element size value        */
+#define ESZLONGS              2           /* long element size value        */
+#define ESZUNKNOWN            0           /* unknown element size value     */
+
+/****************************************************************************/
+/*                                                                          */
+/* TypeDefs                                                                 */
+/*                                                                          */
+/****************************************************************************/
+
+typedef struct                  /* used for get/set standard 1401 registers */
+{
+   short   sPC;
+   char    A;
+   char    X;
+   char    Y;
+   char    stat;
+   char    rubbish;
+} T1401REGISTERS;
+
+typedef union   /* to communicate with 1401 driver status & control funcs */
+{
+   char           chrs[22];
+   short          ints[11];
+   long           longs[5];
+   T1401REGISTERS registers;
+} TCSBLOCK;
+
+typedef TCSBLOCK FAR *  LPTCSBLOCK;
+
+#define U14API(retType) retType far pascal
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+U14API(short) U14LastErrCode(short hand);
+
+U14API(short) U14Open1401(short n1401);
+U14API(short) U14Close1401(short hand);
+U14API(short) U14Reset1401(short hand);
+U14API(short) U14TypeOf1401(short hand);
+
+U14API(short) U14Stat1401(short hand);
+U14API(short) U14CharCount(short hand);
+U14API(short) U14LineCount(short hand);
+
+U14API(short) U14SendString(short hand, LPSTR lpString);
+U14API(short) U14GetString(short hand, LPSTR lpBuffer, WORD wMaxLen);
+U14API(short) U14SendChar(short hand, char cChar);
+U14API(short) U14GetChar(short hand, LPSTR lpcChar);
+
+U14API(short) U14LdCmd(short hand, LPSTR command);
+U14API(unsigned long) U14Ld(short hand, LPSTR vl,LPSTR str);
+
+U14API(short) U14SetTransArea(short hand, WORD wArea, void FAR * lpvBuff,
+                                          DWORD dwLength, short eSz);
+U14API(short) U14UnSetTransfer(short hand, WORD wAreaNum);
+
+U14API(short) U14ToHost(short hand, LPSTR lpAddrHost,DWORD dwSize,DWORD dw1401,
+                                                            short eSz);
+U14API(short) U14To1401(short hand, LPSTR lpAddrHost,DWORD dwSize,DWORD dw1401,
+                                                            short eSz);
+
+U14API(short) U14StrToLongs(LPSTR lpszBuff,long FAR *lpalNums,short sMaxLongs);
+U14API(short) U14LongsFrom1401(short hand, long FAR * lpalBuff,short sMaxLongs);
+
+U14API(void)  U14SetTimeout(short hand, long lTimeout);
+U14API(long)  U14GetTimeout(short hand);
+U14API(short) U14OutBufSpace(short hand);
+U14API(long)  U14BaseAddr1401(short hand);
+U14API(long)  U14DriverVersion(void);
+U14API(short) U14GetUserMemorySize (short hand, long FAR * lpMemorySize);
+U14API(short) U14KillIO1401(short hand);
+
+U14API(short) U14ZeroBlockCount(short hand);
+U14API(short) U14ByteCount(short hand, long FAR * lpHowMany);
+U14API(short) U14BlkTransState(short hand);
+U14API(short) U14StopCircular(short hand);
+U14API(short) U14StateOf1401(short hand);
+
+U14API(short) U14Grab1401(short hand);
+U14API(short) U14Free1401(short hand);
+U14API(short) U14Step1401(short hand);
+U14API(short) U14StepTill1401(short hand, long steps, long targetAddress);
+U14API(short) U14Registers1401(short hand, LPTCSBLOCK lpBlock);
+U14API(short) U14Set1401Registers(short hand, LPTCSBLOCK lpBlock);
+U14API(short) U14SetOrin(short hand, short sOrIn);
+
+#ifdef __cplusplus
+}
+#endif
+
+/****************************************************************************/
+/*                                                                          */
+/* Windows 3.1 /Dos Specifics                                               */
+/*                                                                          */
+/****************************************************************************/
+//#ifdef MSDOS
+
+#define  MINDRIVERMAJREV   1     /* minimum driver revision level we need   */
+
+#define  CED_1401_Device_ID   0x2952            /* VxD ID for CED_1401.386  */
+
+/* defines for type of function to ask driver to perform                    */
+
+#define  U14_OPEN1401         0
+#define  U14_CLOSE1401        1
+#define  U14_SENDSTRING       2
+#define  U14_RESET1401        3
+#define  U14_GETCHAR          4
+#define  U14_SENDCHAR         5
+#define  U14_STAT1401         6
+#define  U14_LINECOUNT        7
+#define  U14_GETSTRING        8
+#define  U14_REGCALLBACK      9
+#define  U14_GETMONITORBUF    10
+#define  U14_SETTRANSFER      11
+#define  U14_UNSETTRANSFER    12
+#define  U14_GETCIRCSELECTOR  13
+#define  U14_GETOUTBUFSPACE   14
+#define  U14_GETBASEADDRESS   15
+#define  U14_GETDRIVERREVISION   16
+#define  U14_GETTRANSFER      17
+#define  U14_KILLIO1401       18
+#define  U14_BLKTRANSSTATE    19
+#define  U14_BYTECOUNT        20
+#define  U14_ZEROBLOCKCOUNT   21
+#define  U14_STOPCIRCULAR     22
+#define  U14_STATEOF1401      23
+
+#define  U14_REGISTERS1401    24
+#define  U14_GRAB1401         25
+#define  U14_FREE1401         26
+#define  U14_STEP1401         27
+#define  U14_SET1401REGISTERS 28
+#define  U14_STEPTILL1401     29
+#define  U14_SETORIN          30
+
+#define  U14_NOSUBFN       0
+
+#define  WM_CEDCALLBACK_STR   "CEDCALLBACK"
+
+#define  GET_TX_MAXENTRIES    17       /* Array size for GetTransfer struct */
+
+typedef struct                          /* used for U14_GetTransfer results */
+{                                          /* Info on a single mapped block */
+   long     physical;
+   long     size;
+} TXENTRY;
+
+typedef struct                          /* used for U14_GetTransfer results */
+{                                               /* matches structure in VXD */
+   long     size;
+   long     linear;
+   short    seg;
+   short    reserved;
+   short    avail;
+   short    used;
+   TXENTRY  entries[GET_TX_MAXENTRIES];       /* Array of mapped block info */
+} TGET_TX_BLOCK;
+
+typedef TGET_TX_BLOCK FAR *    LPGET_TX_BLOCK;
+
+typedef  void FAR *        U14PARAM;
+
+BOOL FAR PASCAL LibMain(HANDLE hMod,WORD wDSeg,
+                        WORD wHeapSz,LPSTR lpszCmdLine);
+BOOL FAR PASCAL WEP(int nArgument);
+
+U14API(short) U14CallDriver(short hand, BYTE bMainFn, BYTE bSubFn, U14PARAM lpParams);
+
+U14API(short) U14RegCallBackWnd(short n1401, HWND hWnd, LPWORD lpwMessCode);
+U14API(short) U14DeRegCallBackWnd(HWND hWnd);
+U14API(short) U14GetMonBuff(LPSTR lpBuffer, WORD wMaxLen);
+U14API(short) U14GetCircSelector(void);
+
+U14API(short) U14GetTransfer(short hand, LPGET_TX_BLOCK lpTransBlock);
+
+#define  U14Status1401(H,X,Y)   U14CallDriver(H,X,U14_NOSUBFN,(U14PARAM)Y)
+#define  U14Control1401(H,X,Y)  U14CallDriver(H,X,U14_NOSUBFN,(U14PARAM)Y)
+
+
+
+
+
+
+//#endif                                       /* End of ifndef __USE1401_H__ */
+
+
+
+
